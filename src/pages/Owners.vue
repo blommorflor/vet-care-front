@@ -71,36 +71,28 @@
 import { ref, reactive, onMounted } from 'vue'
 import axios from 'axios';
 
-// -----------------------------
-// Estado
-// -----------------------------
 const owners = ref([]);
 const loading = ref(false);
-
 const dialog = ref(false);
 const deleteDialog = ref(false);
 const isEditing = ref(false);
 
+// CORRECCIÓN 1: Usar 'nombre' en lugar de 'name'
 const form = reactive({
     _id: null,
-    name: '',
+    nombre: '', 
     phone: '',
     email: ''
 });
 
-// -----------------------------
-// Encabezados de la tabla
-// -----------------------------
+// CORRECCIÓN 2: La key debe coincidir con la base de datos ('nombre')
 const headers = [
-    { title: 'Nombre', key: 'name' },
-    { title: 'Teléfono', key: 'phone' },
-    { title: 'Email', key: 'email' },
+    { title: 'Nombre', key: 'nombre' }, 
+    { title: 'Teléfono', key: 'contacto.telefono' }, // Acceso al objeto anidado
+    { title: 'Email', key: 'contacto.email' },       // Acceso al objeto anidado
     { title: 'Acciones', key: 'actions', sortable: false },
 ];
 
-// -----------------------------
-// Cargar datos
-// -----------------------------
 async function loadOwners() {
     loading.value = true;
     try {
@@ -112,55 +104,47 @@ async function loadOwners() {
     loading.value = false;
 }
 
-// onMounted(loadOwners);
+// Descomentar para que cargue al iniciar
+onMounted(loadOwners);
 
-// -----------------------------
-// Crear
-// -----------------------------
 function openCreateDialog() {
     isEditing.value = false;
     resetForm();
     dialog.value = true;
 }
 
-// -----------------------------
-// Editar
-// -----------------------------
 function openEditDialog(item) {
     isEditing.value = true;
     form._id = item._id;
-    form.name = item.name;
-    form.phone = item.phone;
-    form.email = item.email;
+    form.nombre = item.nombre; // Corregido
+    // El backend devuelve contacto: { telefono: '...', email: '...' }
+    form.phone = item.contacto?.telefono || ''; 
+    form.email = item.contacto?.email || '';
     dialog.value = true;
 }
 
-// -----------------------------
-// Eliminar
-// -----------------------------
 function openDeleteDialog(item) {
     form._id = item._id;
-    form.name = item.name;
+    form.nombre = item.nombre; // Corregido
     deleteDialog.value = true;
 }
 
-// -----------------------------
-// Guardar (crear/editar)
-// -----------------------------
 async function saveOwner() {
     try {
+        // Adaptar el payload a la estructura que espera el Backend
+        // duenos(_id, nombre, contacto: { telefono, email })
+        const payload = {
+            nombre: form.nombre,
+            contacto: {
+                telefono: form.phone,
+                email: form.email
+            }
+        };
+
         if (isEditing.value) {
-            await axios.put(`/api/owners/${form._id}`, {
-                name: form.name,
-                phone: form.phone,
-                email: form.email
-            });
+            await axios.put(`/api/owners/${form._id}`, payload); // Asegúrate de tener PUT en tu controller si usas editar
         } else {
-            await axios.post('/api/owners', {
-                name: form.name,
-                phone: form.phone,
-                email: form.email
-            });
+            await axios.post('/api/owners', payload);
         }
 
         dialog.value = false;
@@ -170,12 +154,9 @@ async function saveOwner() {
     }
 }
 
-// -----------------------------
-// Confirmar eliminar
-// -----------------------------
 async function deleteOwner() {
     try {
-        await axios.delete(`/api/owners/${form._id}`);
+        await axios.delete(`/api/owners/${form._id}`); // Asegúrate de tener DELETE en tu controller
         deleteDialog.value = false;
         loadOwners();
     } catch (error) {
@@ -183,12 +164,9 @@ async function deleteOwner() {
     }
 }
 
-// -----------------------------
-// Reset form
-// -----------------------------
 function resetForm() {
     form._id = null;
-    form.name = '';
+    form.nombre = '';
     form.phone = '';
     form.email = '';
 }
