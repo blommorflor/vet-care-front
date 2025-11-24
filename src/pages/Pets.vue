@@ -10,16 +10,16 @@
             </v-card-title>
 
             <v-data-table :headers="headers" :items="pets" :loading="loading">
-                <template #item.owner="{ item }">
-                    {{ getOwnerName(item.dueno_id) }}
+                <template #item.dueno_info="{ item }">
+                    {{ item.dueno_id?.nombre || '—' }}
                 </template>
 
                 <template #item.actions="{ item }">
-                    <v-btn icon @click="openEditDialog(item)">
+                    <v-btn icon variant="text" size="small" color="primary" @click="openEditDialog(item)">
                         <v-icon>mdi-pencil</v-icon>
                     </v-btn>
 
-                    <v-btn icon color="red" @click="openDeleteDialog(item)">
+                    <v-btn icon variant="text" size="small" color="red" @click="openDeleteDialog(item)">
                         <v-icon>mdi-delete</v-icon>
                     </v-btn>
                 </template>
@@ -100,7 +100,7 @@ const form = reactive({
     nombre: "",
     especie: "",
     raza: "",
-    dueno_id: "",
+    dueno_id: null, // Inicializar como null
     fecha_nacimiento: "",
 });
 
@@ -111,18 +111,10 @@ const headers = [
     { title: "Nombre", key: "nombre" },
     { title: "Especie", key: "especie" },
     { title: "Raza", key: "raza" },
-    { title: "Dueño", key: "owner" },
+    { title: "Dueño", key: "dueno_info" }, // Cambio clave: usaremos un campo virtual o slot
     { title: "Fecha Nacimiento", key: "fecha_nacimiento" },
     { title: "Acciones", key: "actions", sortable: false },
 ];
-
-// -----------------------------
-// Helpers
-// -----------------------------
-function getOwnerName(ownerId) {
-    const owner = owners.value.find((o) => o._id === ownerId);
-    return owner ? owner.name : "—";
-}
 
 // -----------------------------
 // Cargar datos
@@ -130,6 +122,7 @@ function getOwnerName(ownerId) {
 async function loadPets() {
     loading.value = true;
     try {
+        // El backend responde en /api/pets (plural en inglés)
         const res = await axios.get("/api/pets");
         pets.value = res.data;
     } catch (error) {
@@ -147,9 +140,10 @@ async function loadOwners() {
     }
 }
 
+// ¡IMPORTANTE! Descomentar esto para que cargue los datos al entrar
 onMounted(() => {
-    // loadPets();
-    // loadOwners();
+    loadPets();
+    loadOwners();
 });
 
 // -----------------------------
@@ -171,8 +165,13 @@ function openEditDialog(item) {
     form.nombre = item.nombre;
     form.especie = item.especie;
     form.raza = item.raza;
-    form.dueno_id = item.dueno_id;
-    form.fecha_nacimiento = item.fecha_nacimiento;
+    
+    // TRUCO: El backend devuelve un objeto completo en dueno_id (por el populate).
+    // Pero el v-select necesita solo el _id string para preseleccionarlo.
+    form.dueno_id = item.dueno_id && item.dueno_id._id ? item.dueno_id._id : item.dueno_id;
+    
+    // Formatear fecha para el input date (YYYY-MM-DD) si viene completa
+    form.fecha_nacimiento = item.fecha_nacimiento ? item.fecha_nacimiento.split('T')[0] : "";
 
     dialog.value = true;
 }
@@ -195,7 +194,7 @@ async function savePet() {
             nombre: form.nombre,
             especie: form.especie,
             raza: form.raza,
-            dueno_id: form.dueno_id,
+            dueno_id: form.dueno_id, // Aquí enviamos solo el ID
             fecha_nacimiento: form.fecha_nacimiento,
         };
 
@@ -221,7 +220,8 @@ async function deletePet() {
         deleteDialog.value = false;
         loadPets();
     } catch (error) {
-        console.error("Error deleting pet:", error);
+        // Aquí podrías mostrar una alerta si falla (ej: si tiene citas asociadas)
+        alert("No se puede eliminar: " + (error.response?.data?.message || error.message));
     }
 }
 
@@ -233,7 +233,7 @@ function resetForm() {
     form.nombre = "";
     form.especie = "";
     form.raza = "";
-    form.dueno_id = "";
+    form.dueno_id = null;
     form.fecha_nacimiento = "";
 }
 </script>

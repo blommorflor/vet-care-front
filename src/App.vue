@@ -23,17 +23,15 @@
 
         <v-list-item link title="Citas" to="/appoiments" prepend-icon="mdi-calendar-check"></v-list-item>
 
+        <v-list-item link title="Tratamientos" to="/treatments" prepend-icon="mdi-medical-bag"></v-list-item>
+
         <v-list-item link title="Vacunas" to="/vaccine" prepend-icon="mdi-needle"></v-list-item>
 
-        <v-list-item link title="Citas por veterinario" to="/upcomingAppointments"
-          prepend-icon="mdi-calendar-clock"></v-list-item>
+        <v-list-item link title="Citas por veterinario" to="/upcomingAppointments" prepend-icon="mdi-calendar-clock"></v-list-item>
 
-        <v-list-item link title="Gasto por mascota" to="/monthlyCostByPet"
-          prepend-icon="mdi-cash-multiple"></v-list-item>
+        <v-list-item link title="Gasto por mascota" to="/monthlyCostByPet" prepend-icon="mdi-cash-multiple"></v-list-item>
 
-        <v-list-item link title="Mascotas Vacunas" to="/incompleteVaccines"
-          prepend-icon="mdi-alert-circle-outline"></v-list-item>
-
+        <v-list-item link title="Mascotas Vacunas" to="/incompleteVaccines" prepend-icon="mdi-alert-circle-outline"></v-list-item>
       </v-navigation-drawer>
       <div style="padding: 15px; background-color: ghostwhite; height: 100%; width: 100%;">
         <v-card style="padding: 15px;">
