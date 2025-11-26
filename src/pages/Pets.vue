@@ -122,7 +122,6 @@ const headers = [
 async function loadPets() {
     loading.value = true;
     try {
-        // El backend responde en /api/pets (plural en inglés)
         const res = await axios.get("/api/pets");
         pets.value = res.data;
     } catch (error) {
@@ -140,7 +139,6 @@ async function loadOwners() {
     }
 }
 
-// ¡IMPORTANTE! Descomentar esto para que cargue los datos al entrar
 onMounted(() => {
     loadPets();
     loadOwners();
@@ -166,11 +164,8 @@ function openEditDialog(item) {
     form.especie = item.especie;
     form.raza = item.raza;
     
-    // TRUCO: El backend devuelve un objeto completo en dueno_id (por el populate).
-    // Pero el v-select necesita solo el _id string para preseleccionarlo.
     form.dueno_id = item.dueno_id && item.dueno_id._id ? item.dueno_id._id : item.dueno_id;
     
-    // Formatear fecha para el input date (YYYY-MM-DD) si viene completa
     form.fecha_nacimiento = item.fecha_nacimiento ? item.fecha_nacimiento.split('T')[0] : "";
 
     dialog.value = true;
@@ -194,7 +189,7 @@ async function savePet() {
             nombre: form.nombre,
             especie: form.especie,
             raza: form.raza,
-            dueno_id: form.dueno_id, // Aquí enviamos solo el ID
+            dueno_id: form.dueno_id,
             fecha_nacimiento: form.fecha_nacimiento,
         };
 
@@ -220,7 +215,6 @@ async function deletePet() {
         deleteDialog.value = false;
         loadPets();
     } catch (error) {
-        // Aquí podrías mostrar una alerta si falla (ej: si tiene citas asociadas)
         alert("No se puede eliminar: " + (error.response?.data?.message || error.message));
     }
 }

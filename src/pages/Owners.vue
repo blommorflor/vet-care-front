@@ -67,14 +67,12 @@
 import { ref, reactive, onMounted } from 'vue'
 import axios from 'axios';
 
-// Estado
 const owners = ref([]);
 const loading = ref(false);
 const dialog = ref(false);
 const deleteDialog = ref(false);
 const isEditing = ref(false);
 
-// Formulario reactivo
 const form = reactive({
     _id: null,
     nombre: '', 
@@ -82,14 +80,12 @@ const form = reactive({
     email: ''
 });
 
-// Configuración de tabla
 const headers = [
     { title: 'Nombre', key: 'nombre' },
-    { title: 'Contacto', key: 'contacto', sortable: false }, // Agrupamos contacto
+    { title: 'Contacto', key: 'contacto', sortable: false },
     { title: 'Acciones', key: 'actions', sortable: false },
 ];
 
-// Cargar datos
 async function loadOwners() {
     loading.value = true;
     try {
@@ -104,35 +100,29 @@ async function loadOwners() {
 
 onMounted(loadOwners);
 
-// Abrir diálogo Crear
 function openCreateDialog() {
     isEditing.value = false;
     resetForm();
     dialog.value = true;
 }
 
-// Abrir diálogo Editar
 function openEditDialog(item) {
     isEditing.value = true;
     form._id = item._id;
     form.nombre = item.nombre;
-    // Mapear datos anidados al formulario plano
     form.phone = item.contacto?.telefono || '';
     form.email = item.contacto?.email || '';
     dialog.value = true;
 }
 
-// Abrir diálogo Eliminar
 function openDeleteDialog(item) {
     form._id = item._id;
     form.nombre = item.nombre;
     deleteDialog.value = true;
 }
 
-// Guardar (Crear o Editar)
 async function saveOwner() {
     try {
-        // Estructura que espera el Backend (NestJS Schema)
         const payload = {
             nombre: form.nombre,
             contacto: {
@@ -142,24 +132,21 @@ async function saveOwner() {
         };
 
         if (isEditing.value) {
-            // OJO: Necesitas implementar el método PUT en tu backend para que esto funcione
             await axios.put(`/api/owners/${form._id}`, payload);
         } else {
             await axios.post('/api/owners', payload);
         }
 
         dialog.value = false;
-        loadOwners(); // Recargar tabla
+        loadOwners();
     } catch (error) {
         console.error("Error guardando dueño:", error);
         alert("Error al guardar: " + (error.response?.data?.message || error.message));
     }
 }
 
-// Eliminar
 async function deleteOwner() {
     try {
-        // OJO: Necesitas implementar el método DELETE en tu backend para que esto funcione
         await axios.delete(`/api/owners/${form._id}`);
         deleteDialog.value = false;
         loadOwners();
@@ -169,7 +156,6 @@ async function deleteOwner() {
     }
 }
 
-// Limpiar formulario
 function resetForm() {
     form._id = null;
     form.nombre = '';

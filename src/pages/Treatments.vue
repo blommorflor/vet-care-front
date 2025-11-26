@@ -172,7 +172,7 @@ const form = reactive({
   tipo: "",
   notas: "",
   costo: 0,
-  insumos: [] // Array de { vacuna_id, cantidad }
+  insumos: []
 });
 
 const headers = [
@@ -237,7 +237,6 @@ function openDeleteDialog(item) {
 async function save() {
   saving.value = true;
   try {
-    // Filtramos filas vacías (que no tengan vacuna seleccionada)
     const vacunasValidas = form.insumos.filter(row => row.vacuna_id && row.cantidad > 0);
 
     const payload = {

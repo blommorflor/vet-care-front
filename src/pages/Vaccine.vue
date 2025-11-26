@@ -83,7 +83,6 @@ const headers = [
     { title: "Acciones", key: "actions", sortable: false },
 ];
 
-// Helper visual para alertar stock bajo
 function getStockColor(stock) {
     if (stock === 0) return 'red';
     if (stock < 10) return 'orange';
@@ -93,7 +92,6 @@ function getStockColor(stock) {
 async function loadData() {
     loading.value = true;
     try {
-        // CORRECCIÓN: Ruta en inglés
         const res = await axios.get("/api/vaccines");
         items.value = res.data;
     } catch (error) {
@@ -149,7 +147,6 @@ async function remove() {
         loadData();
     } catch (error) {
         console.error("Error eliminando:", error);
-        // Aquí podrías validar si la vacuna está en uso antes de borrar
         alert("No se puede eliminar si ya ha sido usada en tratamientos históricos.");
     }
 }

@@ -85,18 +85,16 @@ const reportData = ref([]);
 const loading = ref(false);
 const searchVet = ref('');
 
-// Definimos las columnas de la tabla padre
 const headers = [
   { title: 'Veterinario', key: 'veterinario', sortable: true },
   { title: 'Fecha', key: 'fecha', sortable: true },
   { title: 'Carga de Trabajo', key: 'cantidad', align: 'center' },
-  { title: '', key: 'data-table-expand' }, // Flechita para expandir
+  { title: '', key: 'data-table-expand' },
 ];
 
 async function loadReport() {
   loading.value = true;
   try {
-    // Llamada al endpoint de agregación
     const params = {};
     if (searchVet.value) {
       params.veterinarian = searchVet.value;
@@ -111,10 +109,8 @@ async function loadReport() {
   }
 }
 
-// Formatear fecha string YYYY-MM-DD a local
 function formatDate(dateStr) {
   if (!dateStr) return '';
-  // Truco para evitar problemas de zona horaria al parsear YYYY-MM-DD
   const [year, month, day] = dateStr.split('-');
   return `${day}/${month}/${year}`;
 }

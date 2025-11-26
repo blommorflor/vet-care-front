@@ -77,8 +77,6 @@ const headers = [
 async function loadReport() {
   loading.value = true;
   try {
-    // Llamamos al endpoint que creamos en PetsController
-    // Ruta: /api/pets/reports/incomplete-vaccinations
     const res = await axios.get('/api/pets/reports/incomplete-vaccinations');
     items.value = res.data;
   } catch (error) {

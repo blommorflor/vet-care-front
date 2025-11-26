@@ -128,7 +128,6 @@ const headers = [
   { title: "Acciones", key: "actions", sortable: false },
 ];
 
-// --- Carga de Datos ---
 async function loadData() {
   loading.value = true;
   try {
@@ -147,7 +146,6 @@ async function loadData() {
 
 onMounted(loadData);
 
-// --- Helpers Visuales ---
 function getStatusColor(estado) {
   if (estado === 'cancelada') return 'red';
   if (estado === 'completada') return 'green';
@@ -159,8 +157,6 @@ function formatDate(dateString) {
   return new Date(dateString).toLocaleString();
 }
 
-// --- Acciones ---
-
 function openCreateDialog() {
   isEditing.value = false;
   resetForm();
@@ -170,16 +166,13 @@ function openCreateDialog() {
 function openEditDialog(item) {
   isEditing.value = true;
   form._id = item._id;
-  // El backend devuelve el objeto mascota completo, extraemos solo el ID para el select
   form.mascota_id = item.mascota_id?._id || item.mascota_id;
   form.motivo = item.motivo;
   form.veterinario = item.veterinario;
-  form.estado = item.estado; // Cargar el estado actual
+  form.estado = item.estado;
   
-  // Formato para input datetime-local (YYYY-MM-DDTHH:mm)
   if (item.fecha) {
     const date = new Date(item.fecha);
-    // Ajuste simple para zona horaria local en el input
     date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
     form.fecha = date.toISOString().slice(0, 16);
   }
@@ -192,7 +185,6 @@ function openCancelDialog(item) {
   cancelDialog.value = true;
 }
 
-// Guardar (Crear o Reprogramar)
 async function saveCita() {
   try {
     const payload = {
@@ -200,14 +192,12 @@ async function saveCita() {
       fecha: new Date(form.fecha).toISOString(),
       motivo: form.motivo,
       veterinario: form.veterinario,
-      estado: form.estado, // Enviamos el estado por si cambió
+      estado: form.estado,
     };
 
     if (isEditing.value) {
-      // PUT /api/appointments/:id
       await axios.put(`/api/appointments/${form._id}`, payload);
     } else {
-      // POST /api/appointments
       await axios.post("/api/appointments", payload);
     }
 
@@ -220,12 +210,10 @@ async function saveCita() {
   }
 }
 
-// Cancelar Cita (Lógica especial)
 async function cancelCitaConfirm() {
   if (!selectedItem.value) return;
   
   try {
-    // Usamos PATCH .../cancel como definimos en el backend
     await axios.patch(`/api/appointments/${selectedItem.value._id}/cancel`);
     cancelDialog.value = false;
     loadData();

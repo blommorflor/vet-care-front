@@ -73,12 +73,11 @@ const searchPet = ref('');
 
 const headers = [
   { title: 'Mascota', key: 'mascota', sortable: true },
-  { title: 'Mes', key: 'mes', sortable: true }, // El backend manda formato YYYY-MM
+  { title: 'Mes', key: 'mes', sortable: true },
   { title: 'Procedimientos', key: 'procedimientos', align: 'center' },
   { title: 'Gasto Total', key: 'total', align: 'end' },
 ];
 
-// Calculamos el total de todo lo que se ve en pantalla
 const grandTotal = computed(() => {
   return reportData.value.reduce((acc, item) => acc + (item.total || 0), 0);
 });
@@ -88,10 +87,9 @@ async function loadReport() {
   try {
     const params = {};
     if (searchPet.value) {
-      params.petName = searchPet.value; // El backend espera 'petName'
+      params.petName = searchPet.value;
     }
 
-    // CORRECCIÓN: Endpoint en inglés
     const res = await axios.get('/api/treatments/reports/expenses', { params });
     reportData.value = res.data;
   } catch (error) {
@@ -101,14 +99,12 @@ async function loadReport() {
   }
 }
 
-// Helpers de formato
 function formatCurrency(value) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
 }
 
 function formatMonth(yyyyMm) {
   if (!yyyyMm) return '';
-  // Convierte "2023-11" a "Noviembre 2023" (Depende del locale del navegador)
   const [year, month] = yyyyMm.split('-');
   const date = new Date(year, month - 1); 
   return date.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
